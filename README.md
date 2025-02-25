@@ -104,3 +104,82 @@ WHERE category = 'Beauty'
 ```sql
 SELECT * FROM retail_sales WHERE total_sale > 1000
 ```
+6. **Use a SQL query to retrieve the total number of transactions (transaction_id) done by each gender in every category.:**
+```sql
+SELECT 
+    category,gender,
+    COUNT(*) as total_trans
+FROM retail_sales
+GROUP BY 
+    category,
+    gender
+ORDER BY 1
+```
+7. **Create a SQL query to find average sale per month. Determine best selling month in every year:**
+```sql
+SELECT 
+       year,
+       month,
+    avg_sale
+FROM 
+(    
+SELECT 
+    EXTRACT(YEAR FROM sale_date) as year,
+    EXTRACT(MONTH FROM sale_date) as month,
+    AVG(total_sale) as avg_sale,
+    RANK() OVER(PARTITION BY EXTRACT(YEAR FROM sale_date) ORDER BY AVG(total_sale) DESC) as rank
+FROM retail_sales
+GROUP BY 1, 2
+) as t1
+WHERE rank = 1
+```
+8. **Construct a SQL query to select the top 5 customers by the highest total sales **:
+```sql
+SELECT 
+    customer_id,
+    SUM(total_sale) as total_sales
+FROM retail_sales GROUP BY 1 ORDER BY 2 DESC
+LIMIT 5
+```
+9. **Create a SQL query to retrieve the number of distinct customers who bought products from each category.**
+```sql
+SELECT 
+    category,    
+    COUNT(DISTINCT customer_id) as cnt_unique_cs
+FROM retail_sales
+GROUP BY category
+```
+10. **Write a SQL query to create each shift and number of orders (Example Morning <12, Afternoon Between 12 & 17, Evening >17)**:
+```sql
+WITH hour_sale AS
+(
+SELECT *,
+    CASE
+        WHEN EXTRACT(HOUR FROM sale_time) < 12 THEN 'Morning'
+        WHEN EXTRACT(HOUR FROM sale_time) BETWEEN 12 AND 17 THEN 'Afternoon'
+        ELSE 'Evening'
+    END as shift
+FROM retail_sales
+)
+SELECT shift,
+    COUNT(*) as total_orders    
+FROM hour_sale
+GROUP BY shift
+```
+
+## Findings
+
+- **Customer Demographics**: There are customers across different age groups, with sales spread across different categories like Clothing and Beauty.
+- **High-Value Transactions**: There are multiple transactions with an aggregate sale value higher than 1000, which represents high-end purchases.
+- **Sales Trends**: Analysis of sales on a monthly basis reveals differences in sales, enabling the determination of peak seasons.
+- **Customer Insights**: The analysis determines high-spending customers and most sought-after product categories.
+
+## Reports
+
+- **Sales Summary**: A summary report of overall sales, customer information, and category performance.
+- **Trend Analysis**: Information on sales trends by month and changes.
+- **Customer Insights**: Top customer and distinct customer counts per category reports.
+
+## Conclusion
+
+This project is a whole-course treatment of SQL for data analysts, from setting up a database to data cleaning, exploratory data analysis, and business-driven SQL queries. The insights gained from this project can inform business decision-making by observing patterns in sales, customer trends, and product performance.
